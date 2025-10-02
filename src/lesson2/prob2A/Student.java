@@ -6,11 +6,12 @@ public class Student {
 
     public Student(String name){
         this.name = name;
-        gr = new GradeReport();
+
+     //   gr = new GradeReport();
     }
 
-    public Student() {
-
+    public void setGr(GradeReport gr){
+        this.gr = gr;
     }
 
     public String getName() {
@@ -20,4 +21,10 @@ public class Student {
     public GradeReport getGr() {
         return gr;
     }
+
+   /* @Override
+    public String toString() {
+        return  "Student :" + " " + name  + " "
+                + "Grade report is" + " " + gr.getGrade();
+    }*/
 }
