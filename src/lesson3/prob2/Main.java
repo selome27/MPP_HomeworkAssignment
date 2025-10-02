@@ -1,9 +1,5 @@
 package lesson3.prob2;
-import java.util.*;
 
-import lesson3.prob2.Apartment;
-import lesson3.prob2.Building;
-import lesson3.prob2.LandlordInfo;
 public class Main {
 
 	public static void main(String[] args) {
