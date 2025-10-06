@@ -12,7 +12,7 @@ public class Item {
 	public String toString() {
 		return name;
 	}
-	public static Item newItem(String name){
+	 static Item newItem(String name){
 		return new Item(name);
 	}
 
