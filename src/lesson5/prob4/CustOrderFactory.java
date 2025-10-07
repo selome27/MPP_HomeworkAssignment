@@ -7,9 +7,17 @@ public class CustOrderFactory {
       return  new Customer(name);
   }
   public static Order newOrder(Customer cust , LocalDate date){
-      return  Order.newOrder(cust,date);
-  }
-  public static Item newItem(String name){
-      return  Item.newItem(name);
+         if(cust == null) throw new NullPointerException("Null customer");
+          Order ord = new Order(date);
+          cust.addOrder(ord);
+          return ord;
+      }
+
+  public static Item newItem(Order order , String name){
+    if(order == null) throw new NullPointerException("Null order");
+     Item item = new Item(name);
+     order.addItem(item);
+     return item;
+
   }
 }

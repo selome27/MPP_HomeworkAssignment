@@ -8,12 +8,11 @@ public class Main {
 	public static void main(String[] args) {
 		Customer cust = CustOrderFactory.newCustomer("Bob");
 		Order order = CustOrderFactory.newOrder(cust, LocalDate.now());
-		order.addItem("Shirt");
-		order.addItem("Laptop");
+		  CustOrderFactory.newItem(order,"shirt");
 
 		order = CustOrderFactory.newOrder(cust, LocalDate.now());
-		order.addItem("Pants");
-		order.addItem("Knife set");
+		CustOrderFactory.newItem(order,"Pants");
+		CustOrderFactory.newItem(order,"Knife set");
 
 		System.out.println(cust.getOrders());
 	}
