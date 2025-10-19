@@ -31,7 +31,7 @@ public class Main {
         System.out.println(allUniqueCourses(students));
         studentsInCity(students, "Fairfield").forEach(System.out::println);
         System.out.println(countStudentsInCourse(students, "CS545"));
-        studentsInSection(students, 901).forEach(System.out::println);
+        studentsInSection(students, "901").forEach(System.out::println);
         studentsWithManyCourses(students, 2).forEach(System.out::println);
         System.out.println(coursesInCity(students, "Fairfield"));
         addressesForCourse(students, "CS401").forEach(System.out::println);
@@ -42,21 +42,20 @@ public class Main {
 
         public static List<Student> studentsInCourse(List<Student> students , String courseCode) {
 
-            return students.stream()
-                    .filter(s -> s.getSections() != null &&
-                            s.getSections().stream()
-                                    .anyMatch(sec -> sec.getCourseCode().equals(courseCode)))
-                    .toList();
+             return students.stream()
+                     .filter(s-> Optional.ofNullable(s.getSections()).orElse(List.of()).stream()
+                             .anyMatch(section -> section.getCourseCode().equals(courseCode))
+                     ).toList();
         }
         // Get the address of any student that is taking a given course (e.g., "CS401")
         public static List<Address> addressesInCourse(List<Student> students, String courseCode) {
             return students.stream()
-                    .filter(s -> s.getSections() != null &&
-                            s.getSections().stream()
-                                    .anyMatch(sec -> sec.getCourseCode().equals(courseCode)))
-                    .map(Student::getAddress)
-                    .distinct()
+                    .filter(s->Optional.ofNullable(s.getSections()).orElse(List.of()).stream()
+                            .anyMatch(section -> section.getCourseCode().equals(courseCode)))
+                    .map(stu->stu.getAddress())
                     .toList();
+
+
         }
 
     // Calculate the GPA for a given student
@@ -69,93 +68,139 @@ public class Main {
 
     // Find the student with the highest GPA
     public static Student topStudent(List<Student> students) {
-        return students.stream()
-                .max((s1, s2) -> Double.compare(calculateGPA(s1), calculateGPA(s2)))
-                .orElse(null);
+       return students.stream()
+
+//               .max(Comparator.comparing(s-> calculateGPA(s.getGrades())))
+//               .orElse(null);
+               .max(Comparator.comparing(s1->s1.getGrades()
+                       .stream()
+                       .mapToDouble(Double::doubleValue)
+                       .average()
+                       .orElse(0.0)))
+               .orElse(null);
+
+
+
+
+
+
+
     }
 
     // Get a list of all unique courses taken by students
     public static List<String> allUniqueCourses(List<Student> students) {
         return students.stream()
-                .filter(s -> s.getSections() != null)
-                .flatMap(s -> s.getSections().stream())
-                .map(Section::getCourseCode)
+                .flatMap(ss-> Optional.ofNullable(ss.getSections()).orElse(List.of()).stream())
+                .map(sec->sec.getCourseCode())
                 .distinct()
                 .toList();
+
+
     }
 
 
     // Find all students who live in a given city (e.g., "Fairfield") sorted in alphabetical order
     public static List<Student> studentsInCity(List<Student> students, String city) {
 
-        return students.stream()
-                .filter(s -> s.getAddress() != null && s.getAddress().getCity().equals(city))
-                .sorted(Comparator.comparing(Student::getName))
-                .toList();
+         return students.stream()
+                 .filter(s->s.getAddress().getCity().equals(city))
+                 .sorted(Comparator.comparing(s->s.getName()))
+                 .toList();
+
     }
 
     // Count the number of students enrolled in a specific course (e.g., "CS401")
 
     public static long countStudentsInCourse(List<Student> students, String courseCode) {
         return students.stream()
-                .filter(s -> s.getSections() != null &&
-                        s.getSections().stream()
-                                .anyMatch(sec -> sec.getCourseCode().equals(courseCode)))
+                .filter(s->Optional.ofNullable(s.getSections()).orElse(List.of()).stream()
+                        .anyMatch(se->se.getCourseCode().equalsIgnoreCase(courseCode)))
                 .count();
     }
 
     // Get a list of students in a specific section
-    public static List<Student> studentsInSection(List<Student> students, int sectionId) {
-        return students.stream()
+    public static List<Student> studentsInSection(List<Student> students, String coursecode) {
+
+          return students.stream()
+                  .filter(s->Optional.ofNullable(s.getSections()).orElse(List.of()).stream()
+                          .anyMatch(se->se.getCourseCode().equalsIgnoreCase(coursecode)))
+                  .toList();
+
+
+
+
+                                  //Optional.ofNullable(s.getSections()).orElse(List.of()).stream()
+
+
+
+
+
+
+
+
+        /*return students.stream()
                 .filter(s -> s.getSections() != null &&
                         s.getSections().stream()
                                 .anyMatch(sec -> sec.getId() == sectionId))
-                .toList();
+                .toList();*/
     }
 
     //  Get the names of students who have enrolled in more than a given number of courses (e.g., more than 2 courses)
     public static List<String> studentsWithManyCourses(List<Student> students, int minCourses) {
-        return students.stream()
-                .filter(s -> s.getSections() != null && s.getSections().size() > minCourses)
-                .map(Student::getName)
-                .toList();
+
+          return students.stream()
+                  .filter(s->s.getSections().size()>2)
+                  .map(s->s.getName())
+                  .toList();
+
+
+
+
     }
 
     // Get a list of unique course names taken by students who live in a given city (e.g., "Fairfield")
     public static List<String> coursesInCity(List<Student> students, String city) {
+
         return students.stream()
-                .filter(s -> s.getAddress() != null && s.getAddress().getCity().equals(city))
-                .filter(s -> s.getSections() != null )
-                .flatMap(s -> s.getSections().stream())
-                .map(Section::getCourseCode)
+                .filter((s->s.getAddress().getCity().equalsIgnoreCase(city)))
+
+                .flatMap(student -> student.getSections().stream())
+                .map(sec->sec.getCourseCode())
                 .distinct()
                 .toList();
+
+
+
     }
 
     // Get a list of distinct addresses of students who are taking a specific course (e.g., "CS401")
 
     public static List<Address> addressesForCourse(List<Student> students, String courseCode) {
+
         return students.stream()
-                .filter(s -> s.getSections() != null &&
-                        s.getSections().stream()
-                                .anyMatch(sec -> sec.getCourseCode().equals(courseCode)))
-                .map(Student::getAddress)
+                .filter(s->s.getSections().stream()
+                        .anyMatch(stu->stu.getCourseCode().equals(courseCode)))
+                .map(st->st.getAddress())
                 .distinct()
                 .toList();
+
+
+
     }
 
     // Get a mapping of students' names to the list of courses they are taking
 
 
     public static Map<String, List<String>> studentCourseMap(List<Student> students) {
-        return students.stream()
-                .filter(s -> s.getSections() != null)
-                .collect(Collectors.toMap(
-                        Student::getName,
-                        s -> s.getSections().stream()
-                                .map(Section::getCourseCode)
-                                .toList()
-                ));
+         return students.stream()
+                 .collect(Collectors.toMap(
+                         student -> student.getName(),student -> Optional.ofNullable(student.getSections()).orElse(List.of()).stream()
+                                 .map(section -> section.getCourseCode())
+                                 .toList()));
+
+
+
+
     }
 
 }
